@@ -1,6 +1,9 @@
 # MSc Cognitive Science - Decision Making
 This repository contains the code for the exam project of Decision Making course in Aarhus University.
 
+The below section describes the repository organization.
+Note: Some files/scripts have been called "...adjusted". The latter means that the output or script is generated using Bayesian inference [JAGS] with increased number of chains and iterations.
+
 ## Repository organization
 ```
 ├── Data_preprocessing/                  <- Contains all scripts for preprocessing of Wood et al. (2005) data.
