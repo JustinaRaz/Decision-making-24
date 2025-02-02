@@ -240,7 +240,7 @@ p2
 ```{r}
 # Save both plots:
 
-ggsave("../Plots/deck_choice_freq_young.png", plot = p1, width = 6, height = 3)
-ggsave("../Plots/deck_choice_freq_old.png", plot = p2, width = 6, height = 3)
+ggsave("Plots/deck_choice_freq_young.png", plot = p1, width = 6, height = 3)
+ggsave("Plots/deck_choice_freq_old.png", plot = p2, width = 6, height = 3)
 ```
 
