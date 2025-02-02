@@ -1,0 +1,246 @@
+---
+title: "Data preprocessing"
+author: "Justina Razanauskaite"
+date: "2024-12-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse, showtext, ggplot2, dplyr, RColorBrewer)
+```
+
+Load data:
+```{r}
+# For indexing
+index <- read_csv("Data/index_100.csv")
+
+# Deck choices
+choice_df <- read.csv("Data/choice_100.csv", header = TRUE, check.names = FALSE) # Loading data
+
+choice_df$sub_id <- rownames(choice_df) # Creating rownames as a separate column
+choice_df <- choice_df[, c("sub_id", setdiff(names(choice_df), "sub_id"))] # Making it as a first column in the data set
+choice_df$sub_id <- sub("Subj_", "", choice_df$sub_id) # Remove "Subj_" prefix
+
+# Losses
+loss_df <- read.csv("Data/lo_100.csv", header = TRUE, check.names = FALSE)
+
+loss_df$sub_id <- rownames(loss_df)
+loss_df <- loss_df[, c("sub_id", setdiff(names(loss_df), "sub_id"))]
+loss_df$sub_id <- sub("Subj_", "", loss_df$sub_id)
+
+# Wins
+win_df <- read.csv("Data/wi_100.csv", header = TRUE, check.names = FALSE)
+
+win_df$sub_id <- rownames(win_df)
+win_df <- win_df[, c("sub_id", setdiff(names(win_df), "sub_id"))]
+win_df$sub_id <- sub("Subj_", "", win_df$sub_id)
+```
+
+Find the correct data:
+```{r}
+indices <- which(index$Study == "Wood") # Takes data from the Wood paper
+
+new_choice_df <- choice_df[indices, ] # Data with participant's choices
+rownames(new_choice_df) <- NULL
+
+new_loss_df <- loss_df[indices, ] # Data with respective losses
+rownames(new_loss_df) <- NULL
+
+new_win_df <- win_df[indices, ] # Data with respective winnings
+rownames(new_win_df) <- NULL
+
+
+# Removing unnecessary variables for clearer view
+
+rm(index)
+rm(choice_df)
+rm(loss_df)
+rm(win_df)
+rm(indices)
+```
+
+Create a column that separates ages:
+```{r}
+new_choice_df$age <- c(rep(1, 90), rep(2, nrow(new_choice_df) - 90))
+new_loss_df$age <- c(rep(1, 90), rep(2, nrow(new_loss_df) - 90))
+new_win_df$age <- c(rep(1, 90), rep(2, nrow(new_win_df) - 90))
+```
+
+Create datasets - Young and old datasets:
+```{r}
+young_choice_df <- new_choice_df %>%
+  filter(age == 1)
+
+old_choice_df <- new_choice_df %>%
+  filter(age == 2)
+
+young_win_df <- new_win_df %>%
+  filter(age == 1)
+
+old_win_df <- new_win_df %>%
+  filter(age == 2)
+
+young_loss_df <- new_loss_df %>%
+  filter(age == 1)
+
+old_loss_df <- new_loss_df %>%
+  filter(age == 2)
+
+# Removing unnecessary variables for clearer view
+
+rm(new_choice_df)
+rm(new_win_df)
+rm(new_loss_df)
+```
+
+Combine datasets
+
+YOUNG
+```{r}
+library(dplyr)
+
+young_data <- young_choice_df %>%
+  pivot_longer(
+    cols = starts_with("choice"),       # Select all choice columns
+    names_to = "trial",                 # New column for trial numbers
+    values_to = "deck"                # New column for card choices
+  ) %>%
+  mutate(
+    trial = rep(1:100, length.out = n()) # Add a Trial column with repeating numbers 1 to 100
+  ) %>%
+  select(trial, deck, sub_id)
+
+# Add wins and losses
+
+young_win_data <- young_win_df %>%
+  pivot_longer(
+    cols = starts_with("Wins"),       
+    values_to = "gain"                
+  ) %>%
+  select(gain)
+
+young_loss_data <- young_loss_df %>%
+  pivot_longer(
+    cols = starts_with("Losses"),       
+    values_to = "loss"                
+  ) %>%
+  select(loss)
+
+young <- cbind(young_data, young_win_data, young_loss_data)
+
+# Change sub_id to subID
+colnames(young)[colnames(young) == "sub_id"] <- "subjID"
+```
+
+OLD
+```{r}
+old_data <- old_choice_df %>%
+  pivot_longer(
+    cols = starts_with("choice"),  
+    names_to = "trial",                
+    values_to = "deck"              
+  ) %>%
+  mutate(
+    trial = rep(1:100, length.out = n()) 
+  ) %>%
+  select(trial, deck, sub_id)  
+
+# Add wins and losses
+
+old_win_data <- old_win_df %>%
+  pivot_longer(
+    cols = starts_with("Wins"),       
+    values_to = "gain"                
+  ) %>%
+  select(gain)
+
+old_loss_data <- old_loss_df %>%
+  pivot_longer(
+    cols = starts_with("Losses"),       
+    values_to = "loss"                
+  ) %>%
+  select(loss)
+
+old <- cbind(old_data, old_win_data, old_loss_data)
+
+# Change sub_id to subID
+colnames(old)[colnames(old) == "sub_id"] <- "subjID"
+```
+
+Save data:
+```{r}
+write.csv(old, "older_group.csv", row.names = FALSE)
+write.csv(young, "younger_group.csv", row.names = FALSE)
+```
+
+Plotting:
+```{r}
+font_add_google("EB Garamond", "ebgaramond")
+showtext_auto()
+
+young$deck <- as.factor(young$deck)
+
+deck_choices_young <- young %>%
+  group_by(trial, deck) %>%
+  summarise(count = n(), .groups = 'drop')
+
+
+p1 <- ggplot(deck_choices_young, aes(x = trial, y = count, color = deck, group = deck)) +
+  geom_line(size = 0.5) + 
+  scale_color_brewer(palette = "RdYlBu") +
+  labs(title = "Deck Choices Across Trials [Younger group]",
+       x = "Trial Number",
+       y = "Frequency of Deck Choices",
+       color = "Deck") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 14)  # Bold and centered
+  ) +
+  scale_x_continuous(
+    limits = c(0, 100),        
+    breaks = seq(0, 100, 10)
+  )
+
+p1
+```
+
+
+```{r}
+old$deck <- as.factor(old$deck)
+
+deck_choices_old <- old %>%
+  group_by(trial, deck) %>%
+  summarise(count = n(), .groups = 'drop')
+
+# Plot: Line plot for deck choices across trials
+p2 <- ggplot(deck_choices_old, aes(x = trial, y = count, color = deck, group = deck)) +
+  geom_line(size = 0.5) + 
+  scale_color_brewer(palette = "RdYlBu") +
+  labs(title = "Deck Choices Across Trials [Older group]",
+       x = "Trial Number",
+       y = "Frequency of Deck Choices",
+       color = "Deck") +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5, size = 14)  # Bold and centered
+  ) +
+  scale_x_continuous(
+    limits = c(0, 100),       
+    breaks = seq(0, 100, 10)
+  )
+
+p2
+```
+
+
+```{r}
+# Save both plots:
+
+ggsave("../Plots/deck_choice_freq_young.png", plot = p1, width = 6, height = 3)
+ggsave("../Plots/deck_choice_freq_old.png", plot = p2, width = 6, height = 3)
+```
+
