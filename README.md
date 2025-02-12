@@ -6,18 +6,26 @@ Note: Some files/scripts have been called "...adjusted". The latter means that t
 
 ## Repository organization
 ```
-├── Data_preprocessing/                  <- Contains all scripts for preprocessing of Wood et al. (2005) data.
-|   ├── Data/                            <- Original data from the source.
-|   ├── data_preprocessing.Rmd           <- Script for original datas' preprocessing for ORL model.
-|   ├── older_group.csv                  <- The output data - IGT data for older participants.
-|   └── younger_group.csv                <- The output data - IGT data for younger participants.
+├── Data_preprocessing/                  <- Pre-processing of Wood et al. (2005) data.
+|   ├── Data/                            <- Original IGT data.
+|   ├── data_preprocessing.Rmd           <- IGT data preprocessing.
+|   ├── older_group.csv                  <- IGT data [OLDER].
+|   └── younger_group.csv                <- IGT data [YOUNGER].
 ├── parameter_estimation/                <- Scripts for hORL parameter estimation.
-|   ├── data/                            <- Two output datasets (from data_preprocessing).
-|   ├── output_data/                     <- Contains 4 estimation datasets: 2 from lower-iteration model, 2 from adjusted model.
+|   ├── PPC/                             <- Posterior predictive checks [PPC].
+|   |   ├── plots/                       <- PPC plots [BOTH GROUPS].
+|   |   ├── output/                      <- Saved PPC output [BOTH GROUPS].
+|   |   ├── ORL_no_theta.txt             <- ORL model.
+|   |   ├── older_ppc.R                  <- Run PPC [OLDER].
+|   |   ├── younger_ppc.R                <- Run PPC [YOUNGER].
+|   |   ├── older_ppc_processing.R       <- To visualize PPC findings [OLDER]
+|   |   └── younger_ppc_processing.R     <- To visualize PPC findings [YOUNGER]
+|   ├── data/                            <- IGT datasets [FROM PRE-PROCESSING].
+|   ├── output_data/                     <- 4 estimation datasets. [2 lower-iteration model, 2 adjusted model].
 |   ├── plots/                           <- Parameter estimation convergence plots.
-|   ├── hier_ORL_no_theta.txt            <- hORL model specification.
-|   ├── hier_ORL_old.R                   <- hORL parameter estimation given the older IGT data.
-|   ├── hier_ORL_young.R                 <- hORL parameter estimation given the younger IGT data.
+|   ├── hier_ORL_no_theta.txt            <- hORL model.
+|   ├── hier_ORL_old.R                   <- Parameter estimation [OLDER DATA]
+|   ├── hier_ORL_young.R                 <- Parameter estimation [YOUNGER DATA]
 |   └── traceplots.R                     <- Script for trace plots of both group estimations + combined density plot.
 ├── parameter_recovery/                  <- Scripts for hORL parameter recovery (simulated data).
 |   ├── JAGS_data/                       <- Contains data from Bayesian inference with JAGS.
@@ -27,15 +35,18 @@ Note: Some files/scripts have been called "...adjusted". The latter means that t
 |       ├── traceplots_young.R           <- Scripts for convergence diagnostics plots for un-adjusted (lower-iteration) model.
 |       ├── traceplots_young_adjusted.R  <- Scripts for convergence diagnostics plots for adjusted (higher-iteration) model.
 |       └── traceplots_old_adjusted.R    <- Scripts for convergence diagnostics plots for adjusted (higher-iteration) model.
-├── ORL_sim.R                               
+├── ORL_sim.R
+├── combined_recovery_plots.R            <- Plotting parameter recovery [BOTH groups in one plot].
+├── old_recovery.csv                     <- Combined recovery data [OLDER].
+├── young_recovery.csv                   <- Combined recovery data [YOUNGER].
 ├── hier_ORL_no_theta.txt                <- hORL model specification.                 
 ├── hier_recovery_old_processing.R       <- Script for recovery plots, N = 63 [older group].
 ├── hier_recovery_old_processing_unadjusted.R  <- Script for running parameter recovery hORL model, older group, at once.
 ├── hier_recovery_young_processing.R     <- Script for recovery plots, N = 90 [younger group].
-├── old_hier_ORL_recovery.R              <- Script for running parameter recovery hORL model (less iterations).   
-├── old_hier_ORL_recovery_adjusted.R     <- Script for running parameter recovery hORL model (more iterations).
+├── old_hier_ORL_recovery.R              <- Parameter recovery [LESS iterations, N = 63].   
+├── old_hier_ORL_recovery_adjusted.R     <- Parameter recovery [MORE iterations, N = 63].  
 ├── plots_old_recovery_adjusted.R        <- Recovery plots, N = 63 [older group].
 ├── plots_young_recovery_adjusted.R      <- Recovery plots, N = 90 [younger group].
 ├── recov_plot.R                         <- Plotting script.
-└── young_hier_ORL_recovery_adjusted.R   <- Script for running parameter recovery hORL model (more iterations).
+└── young_hier_ORL_recovery_adjusted.R   <- Parameter recovery [MORE iterations, N = 90]. 
 ```
